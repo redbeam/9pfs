@@ -571,11 +571,11 @@ main(int argc, char *argv[])
 {
 	AuthInfo		*ai;
 	struct passwd	*pw;
-	char			logstr[100], *fusearg[argc], **fargp, port[10], user[30], *aname;
+	char			logstr[100], *fusearg[argc], **fuseargp, port[10], user[30], *aname;
 	int				ch, doauth;
 
-	fargp = fusearg;
-	*fargp++ = *argv;
+	fuseargp = fusearg;
+	*fuseargp++ = *argv;
 	aname = NULL;
 	doauth = 0;
 	strecpy(port, port+sizeof(port), "564");
@@ -586,7 +586,7 @@ main(int argc, char *argv[])
 		switch(ch){
 		case 'd':
 			debug++;
-			*fargp++ = "-d";
+			*fuseargp++ = "-d";
 			break;
 		case 'U':
 			uflag++;
@@ -605,7 +605,7 @@ main(int argc, char *argv[])
 			doauth++;
 			break;
 		case 'f':
-			*fargp++ = "-f";
+			*fuseargp++ = "-f";
 			break;
 		case 'p':
 			strecpy(port, port+sizeof(port), optarg);
@@ -617,8 +617,8 @@ main(int argc, char *argv[])
 			aname = strdup(optarg);
 			break;
 		case 'o':
-			*fargp++ = "-o";
-			*fargp++ = optarg;
+			*fuseargp++ = "-o";
+			*fuseargp++ = optarg;
 			break;
 		default:
 			usage();
@@ -630,8 +630,8 @@ main(int argc, char *argv[])
 	if(argc != 2)
 		usage();
 
-	*fargp++ = "-s";
-	*fargp++ = argv[1];
+	*fuseargp++ = "-s";
+	*fuseargp++ = argv[1];
 
 	if(debug){
 		snprintf(logstr, sizeof(logstr), "/tmp/9pfs-%d.log", getpid());
@@ -657,7 +657,7 @@ main(int argc, char *argv[])
 		errx(1, "Could not stat root");
 
 	DPRINT("About to fuse_main\n");
-	fuse_main(fargp - fusearg, fusearg, &fsops, NULL);
+	fuse_main(fuseargp - fusearg, fusearg, &fsops, NULL);
 	exit(0);
 }
 
