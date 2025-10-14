@@ -475,8 +475,8 @@ doconnect(char *name, char *port)
 	struct sockaddr_vm	vaddr;
 #endif
 	struct addrinfo		*a, *ainfo, hint;
-	int			e, n, yes;
-	int			p1[2], p2[2];
+	int e, n, yes;
+	int	p1[2], p2[2];
 
 	if(tflag){
 		if(pipe(p1) < 0 || pipe(p2) < 0)
@@ -560,6 +560,7 @@ doconnect(char *name, char *port)
 	freeaddrinfo(ainfo);
 	if(infd >= 0)
 		return;
+
 err:
 	err(1, "Could not connect to 9p server");
 }
@@ -568,9 +569,9 @@ int
 main(int argc, char *argv[])
 {
 	AuthInfo		*ai;
-	struct passwd		*pw;
+	struct passwd	*pw;
 	char			logstr[100], *fusearg[argc], **fargp, port[10], user[30], *aname;
-	int			ch, doauth;
+	int				ch, doauth;
 
 	fargp = fusearg;
 	*fargp++ = *argv;
@@ -616,7 +617,7 @@ main(int argc, char *argv[])
 		case 'A':
 			aname = strdup(optarg);
 			break;
-                case 'o':
+        case 'o':
 			*fargp++ = "-o";
 			*fargp++ = optarg;
 			break;
@@ -629,8 +630,10 @@ main(int argc, char *argv[])
 	argv += optind;
 	if(argc != 2)
 		usage();
+
 	*fargp++ = "-s";
 	*fargp++ = argv[1];
+
 	if(debug){
 		snprintf(logstr, sizeof(logstr), "/tmp/9pfs-%d.log", getpid());
 		if((logfile = fopen(logstr, "w")) == NULL)
@@ -641,6 +644,7 @@ main(int argc, char *argv[])
 	doconnect(argv[0], port);
 	init9p();
 	msize = _9pversion(Msize);
+
 	if(doauth){
 		authfid = _9pauth(AUTHFID, user, NULL);
 		ai = auth_proxy(authfid, auth_getkey, "proto=p9any role=client");
@@ -648,9 +652,11 @@ main(int argc, char *argv[])
 			err(1, "Could not establish authentication");
 		auth_freeAI(ai);
 	}
+
 	rootfid = _9pattach(ROOTFID, doauth ? AUTHFID : NOFID, user, aname);
 	if((rootdir = _9pstat(rootfid)) == NULL)
 		errx(1, "Could not stat root");
+
 	DPRINT("About to fuse_main\n");
 	fuse_main(fargp - fusearg, fusearg, &fsops, NULL);
 	exit(0);
