@@ -484,7 +484,6 @@ doconnect(char *name, char *port)
 		switch(fork()){
 		case -1:
 			err(1, "fork");
-			break;
 		case 0:
 			close(p1[0]);
 			dup2(p1[1], 1);
@@ -494,7 +493,6 @@ doconnect(char *name, char *port)
 
 			execlp("tlsclient", "tlsclient", "-h", name, "-p", port, NULL);
 			err(1, "Could not exec tlsclient");
-			break;
 		default:
 			infd = p1[0];
 			close(p1[1]);
