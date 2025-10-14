@@ -2,6 +2,10 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#ifdef __linux__
+#include <linux/vm_sockets.h>
+#endif
+
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
@@ -461,12 +465,15 @@ struct fuse_operations fsops = {
 	.chmod =	fschmod
 };
 
-static int uflag, tflag;
+static int uflag, tflag, vflag;
 
 static void
 doconnect(char *name, char *port)
 {
 	struct sockaddr_un	uaddr;
+#ifdef __linux__
+	struct sockaddr_vm	vaddr;
+#endif
 	struct addrinfo		*a, *ainfo, hint;
 	int			e, n, yes;
 	int			p1[2], p2[2];
@@ -509,6 +516,31 @@ doconnect(char *name, char *port)
 		return;
 	}
 
+#ifdef __linux__
+	if(vflag){
+		long cid = strtol(name, NULL, 10);
+		if(cid < 0 || cid > UINT32_MAX){
+			errx(1, "parsing service as vsock cid");
+		}
+
+		long intport = strtol(port, NULL, 10);
+		if(intport <= 0 || intport > UINT32_MAX){
+			errx(1, "parsing vsock port");
+		}
+
+		memset(&vaddr, 0, sizeof(struct sockaddr_vm));
+		vaddr.svm_family = AF_VSOCK;
+		vaddr.svm_cid = cid;
+		vaddr.svm_port = intport;
+
+		infd = outfd = socket(AF_VSOCK, SOCK_STREAM, 0);
+		if(connect(infd, (struct sockaddr *)&vaddr, sizeof(struct sockaddr_vm)) == -1)
+			goto err;
+
+		return;
+	}
+#endif
+
 	memset(&hint, 0, sizeof(hint));
 	hint.ai_flags = AI_ADDRCONFIG;
 	hint.ai_family = AF_UNSPEC;
@@ -550,7 +582,7 @@ main(int argc, char *argv[])
 	if((pw = getpwuid(getuid())) == NULL)
 		errx(1, "Could not get user");
 	strecpy(user, user+sizeof(user), pw->pw_name);
-	while((ch = getopt(argc, argv, ":dnUTap:u:A:o:f")) != -1){
+	while((ch = getopt(argc, argv, ":dnUVTap:u:A:o:f")) != -1){
 		switch(ch){
 		case 'd':
 			debug++;
@@ -560,6 +592,13 @@ main(int argc, char *argv[])
 			break;
 		case 'U':
 			uflag++;
+			break;
+		case 'V':
+#ifdef __linux__
+			vflag++;
+#else
+			errx(2, "vsock not supported on this platform");
+#endif
 			break;
 		case 'T':
 			tflag++;
@@ -732,6 +771,6 @@ breakpath(char *dname)
 void
 usage(void)
 {
-	fprintf(stderr, "Usage: 9pfs [-anUfd] [-A aname] [-p port] [-u user] [-o option] service mtpt\n");
+	fprintf(stderr, "Usage: 9pfs [-anUVfd] [-A aname] [-p port] [-u user] [-o option] service mtpt\n");
 	exit(2);
 }
