@@ -39,27 +39,27 @@ enum
 	Msize = 32768,
 };
 
-void	dir2stat(struct stat*, Dir*);
-Dir	*iscached(const char*);
-Dir	*addtocache(const char*);
-void	clearcache(const char*);
-int	iscachectl(const char*);
-char	*breakpath(char*);
-void	usage(void);
+void dir2stat(struct stat*, Dir*);
+Dir *iscached(const char*);
+Dir *addtocache(const char*);
+void clearcache(const char*);
+int iscachectl(const char*);
+char *breakpath(char*);
+void usage(void);
 
-Dir	*rootdir;
-FILE	*logfile;
-FFid	*rootfid;
-FFid	*authfid;
-int	msize;
-int	infd, outfd;
-int	debug;
+Dir *rootdir;
+FILE *logfile;
+FFid *rootfid;
+FFid *authfid;
+int msize;
+int infd, outfd;
+int debug;
 
 int
 fsstat(const char *path, struct stat *st)
 {
-	FFid	*f;
-	Dir	*d;
+	FFid *f;
+	Dir *d;
 
 	if((f = _9pwalk(path)) == NULL)
 		return -EIO;
@@ -76,7 +76,7 @@ fsstat(const char *path, struct stat *st)
 int
 fsgetattr(const char *path, struct stat *st)
 {
-	Dir	*d;
+	Dir *d;
 
 	if(iscachectl(path)){
 		st->st_mode = 0666 | S_IFREG;
@@ -104,7 +104,7 @@ fsrelease(const char *path, struct fuse_file_info *ffi)
 int
 fsreleasedir(const char *path, struct fuse_file_info *ffi)
 {
-	FFid	*f;
+	FFid *f;
 
 	f = FFIH(ffi);
 	if(f == NULL)
@@ -117,8 +117,8 @@ fsreleasedir(const char *path, struct fuse_file_info *ffi)
 int
 fstruncate(const char *path, off_t off)
 {
-	FFid	*f;
-	Dir	*d;
+	FFid *f;
+	Dir *d;
 
 	if(iscachectl(path))
 		return 0;
@@ -151,9 +151,9 @@ fstruncate(const char *path, off_t off)
 int
 fsrename(const char *opath, const char *npath)
 {
-	Dir	*d;
-	FFid	*f;
-	char	*dname, *bname;
+	Dir *d;
+	FFid *f;
+	char *dname, *bname;
 
 	if(iscachectl(opath))
 		return -EACCES;
@@ -189,7 +189,7 @@ fsrename(const char *opath, const char *npath)
 int
 fsopen(const char *path, struct fuse_file_info *ffi)
 {
-	FFid	*f;
+	FFid *f;
 
 	if(iscachectl(path))
 		return 0;
@@ -210,8 +210,8 @@ fsopen(const char *path, struct fuse_file_info *ffi)
 int
 fscreate(const char *path, mode_t perm, struct fuse_file_info *ffi)
 {
-	FFid	*f;
-	char	*dname, *bname;
+	FFid *f;
+	char *dname, *bname;
 
 	if(iscachectl(path))
 		return -EACCES;
@@ -246,8 +246,9 @@ fscreate(const char *path, mode_t perm, struct fuse_file_info *ffi)
 int
 fsmknod(const char *path, mode_t perm, dev_t dev)
 {
-	FFid	*f;
-	char	*dname, *bname;
+	FFid *f;
+	char *dname, *bname;
+
 	if(iscachectl(path))
 		return -EACCES;
 	if((f = _9pwalk(path)) == NULL){
@@ -270,7 +271,7 @@ fsmknod(const char *path, mode_t perm, dev_t dev)
 int
 fsunlink(const char *path)
 {
-	FFid	*f;
+	FFid *f;
 
 	if(iscachectl(path))
 		return 0;
@@ -286,8 +287,8 @@ int
 fsread(const char *path, char *buf, size_t size, off_t off,
 	struct fuse_file_info *ffi)
 {
-	FFid	*f;
-	int 	r;
+	FFid *f;
+	int r;
 
 	if(iscachectl(path)){
 		if(off >= CACHECTLSIZE)
@@ -311,8 +312,8 @@ int
 fswrite(const char *path, const char *buf, size_t size, off_t off,
 	struct fuse_file_info *ffi)
 {
-	FFid	*f;
-	int	r;
+	FFid *f;
+	int r;
 
 	if(iscachectl(path)){
 		clearcache(path);
@@ -331,7 +332,7 @@ fswrite(const char *path, const char *buf, size_t size, off_t off,
 int
 fsopendir(const char *path, struct fuse_file_info *ffi)
 {
-	FFid	*f;
+	FFid *f;
 
 	if(lookupdir(path, GET) != NULL){
 		ffi->fh = (uintptr_t)0;
@@ -355,8 +356,8 @@ fsopendir(const char *path, struct fuse_file_info *ffi)
 int
 fsmkdir(const char *path, mode_t perm)
 {
-	FFid	*f;
-	char	*dname, *bname;
+	FFid *f;
+	char *dname, *bname;
 
 	if((f = _9pwalk(path)) != NULL){
 		_9pclunk(f);
@@ -381,7 +382,7 @@ fsmkdir(const char *path, mode_t perm)
 int
 fsrmdir(const char *path)
 {
-	FFid	*f;
+	FFid *f;
 
 	if((f = _9pwalk(path)) == NULL)
 		return -ENOENT;
@@ -399,10 +400,10 @@ int
 fsreaddir(const char *path, void *data, fuse_fill_dir_t ffd,
 	off_t off, struct fuse_file_info *ffi)
 {
-	FDir		*f;
-	Dir		*d, *e;
-	long		n;
-	struct stat	s;
+	FDir *f;
+	Dir *d, *e;
+	long n;
+	struct stat s;
 
 	ffd(data, ".", NULL, 0);
 	ffd(data, "..", NULL, 0);
@@ -425,8 +426,8 @@ fsreaddir(const char *path, void *data, fuse_fill_dir_t ffd,
 int
 fschmod(const char *path, mode_t perm)
 {
-	FFid	*f;
-	Dir	*d;
+	FFid *f;
+	Dir *d;
 
 	if((f = _9pwalk(path)) == NULL)
 		return -ENOENT;
@@ -447,22 +448,22 @@ fschmod(const char *path, mode_t perm)
 }
 
 struct fuse_operations fsops = {
-	.getattr =	fsgetattr,
-	.truncate =	fstruncate,
-	.rename =	fsrename,
-	.open =		fsopen,
-	.create =	fscreate,
-        .mknod = fsmknod,
-	.unlink =	fsunlink,
-	.read =		fsread,
-	.write =	fswrite,
-	.opendir = 	fsopendir,
-	.mkdir =	fsmkdir,
-	.rmdir =	fsrmdir,
-	.readdir = 	fsreaddir,
-	.release =	fsrelease,
+	.getattr =		fsgetattr,
+	.truncate =		fstruncate,
+	.rename =		fsrename,
+	.open =			fsopen,
+	.create =		fscreate,
+	.mknod =		fsmknod,
+	.unlink =		fsunlink,
+	.read =			fsread,
+	.write =		fswrite,
+	.opendir =		fsopendir,
+	.mkdir =		fsmkdir,
+	.rmdir =		fsrmdir,
+	.readdir =		fsreaddir,
+	.release =		fsrelease,
 	.releasedir =	fsreleasedir,
-	.chmod =	fschmod
+	.chmod =		fschmod
 };
 
 static int uflag, tflag, vflag;
@@ -470,13 +471,13 @@ static int uflag, tflag, vflag;
 static void
 doconnect(char *name, char *port)
 {
-	struct sockaddr_un	uaddr;
+	struct sockaddr_un uaddr;
 #ifdef __linux__
-	struct sockaddr_vm	vaddr;
+	struct sockaddr_vm vaddr;
 #endif
-	struct addrinfo		*a, *ainfo, hint;
-	int			e, n, yes;
-	int			p1[2], p2[2];
+	struct addrinfo *a, *ainfo, hint;
+	int e, n, yes;
+	int p1[2], p2[2];
 
 	if(tflag){
 		if(pipe(p1) < 0 || pipe(p2) < 0)
@@ -560,6 +561,7 @@ doconnect(char *name, char *port)
 	freeaddrinfo(ainfo);
 	if(infd >= 0)
 		return;
+
 err:
 	err(1, "Could not connect to 9p server");
 }
@@ -568,9 +570,9 @@ int
 main(int argc, char *argv[])
 {
 	AuthInfo		*ai;
-	struct passwd		*pw;
+	struct passwd	*pw;
 	char			logstr[100], *fusearg[argc], **fargp, port[10], user[30], *aname;
-	int			ch, doauth;
+	int				ch, doauth;
 
 	fargp = fusearg;
 	*fargp++ = *argv;
@@ -616,7 +618,7 @@ main(int argc, char *argv[])
 		case 'A':
 			aname = strdup(optarg);
 			break;
-                case 'o':
+		case 'o':
 			*fargp++ = "-o";
 			*fargp++ = optarg;
 			break;
@@ -629,8 +631,10 @@ main(int argc, char *argv[])
 	argv += optind;
 	if(argc != 2)
 		usage();
+
 	*fargp++ = "-s";
 	*fargp++ = argv[1];
+
 	if(debug){
 		snprintf(logstr, sizeof(logstr), "/tmp/9pfs-%d.log", getpid());
 		if((logfile = fopen(logstr, "w")) == NULL)
@@ -641,6 +645,7 @@ main(int argc, char *argv[])
 	doconnect(argv[0], port);
 	init9p();
 	msize = _9pversion(Msize);
+
 	if(doauth){
 		authfid = _9pauth(AUTHFID, user, NULL);
 		ai = auth_proxy(authfid, auth_getkey, "proto=p9any role=client");
@@ -648,9 +653,11 @@ main(int argc, char *argv[])
 			err(1, "Could not establish authentication");
 		auth_freeAI(ai);
 	}
+
 	rootfid = _9pattach(ROOTFID, doauth ? AUTHFID : NOFID, user, aname);
 	if((rootdir = _9pstat(rootfid)) == NULL)
 		errx(1, "Could not stat root");
+
 	DPRINT("About to fuse_main\n");
 	fuse_main(fargp - fusearg, fusearg, &fsops, NULL);
 	exit(0);
@@ -659,8 +666,8 @@ main(int argc, char *argv[])
 void
 dir2stat(struct stat *s, Dir *d)
 {
-	struct passwd	*p;
-	struct group	*g;
+	struct passwd *p;
+	struct group *g;
 
 	s->st_dev = d->dev;
 	s->st_ino = d->qid.path;
@@ -683,7 +690,7 @@ dir2stat(struct stat *s, Dir *d)
 void
 clearcache(const char *path)
 {
-	char	*dname;
+	char *dname;
 
 	dname = estrdup(path);
 	breakpath(dname);
@@ -695,9 +702,9 @@ clearcache(const char *path)
 Dir*
 iscached(const char *path)
 {
-	FDir	*fd;
-	Dir	*d, e;
-	char	*dname, *bname;
+	FDir *fd;
+	Dir *d, e;
+	char *dname, *bname;
 
 	if(strcmp(path, "/") == 0)
 		return rootdir;
@@ -716,9 +723,9 @@ iscached(const char *path)
 Dir*
 addtocache(const char *path)
 {
-	FFid	*f;
-	Dir	*d;
-	char	*dname;
+	FFid *f;
+	Dir *d;
+	char *dname;
 
 	DPRINT("addtocache %s\n", path);
 	dname = estrdup(path);
@@ -759,7 +766,7 @@ iscachectl(const char *path)
 char*
 breakpath(char *dname)
 {
-	char	*bname;
+	char *bname;
 
 	bname = strrchr(dname, '/');
 	*bname++ = '\0';
