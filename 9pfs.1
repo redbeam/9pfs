@@ -1,62 +1,67 @@
-.Dd $Mdocdate: July 11  2023 $
+.Dd $Mdocdate: October 07 2025 $
 .Dt 9PFS 1
 .Os
 .Sh NAME
 .Nm 9pfs
 .Nd mount 9P service via FUSE
+
 .Sh SYNOPSIS
 .Nm 9pfs
 .Bk -words
-.Op Fl anU
+.Op Fl dUVTaf
 .Op Fl A Ar aname
 .Op Fl p Ar port
 .Op Fl u Ar user
+.Op Fl o Ar fuse_options
 .Ar service
-.Ar mtpt
+.Ar mountpoint
 .Ek
+
 .Sh DESCRIPTION
 .Nm 9pfs
 mounts the 9P service running at
 .Ar service
 onto
-.Ar mtpt
+.Ar mountpoint
 using the FUSE user-level file system driver.
+
 .Pp
 The following options are available:
 .Bl -tag -width Ds
+.It Fl d
+Causes debug information for subsequent FUSE library calls to be
+output to stderr and logged to /tmp/9pfs-(pid).log. Implies \fB-f\fP.
+.It Fl U
+The 9P service is a UNIX-domain socket.
+.It Fl V
+Connect to the 9P service through a vsock, using
+.Ar service
+as vsock CID. The port is specified using \fB-p\fP.
+.It Fl T
+Communication to the 9P service will
+be done through a dp9ik tls tunnel through
+\fBtlsclient\fP(1).
 .It Fl a
 Negotiate authentication using a local factotum. See
 .Sx ENVIRONMENT
 and
 .Sx EXAMPLES
 for more details.
-.It Fl n
-Do not negotiate authentication. This is the
-default.
-.It Fl U
-The 9P service is a UNIX-domain
-socket.
-.It Fl T
-Communication to the 9p service will
-be done through a dp9ik tls tunnel through
-\fBtlsclient\fP(1).
+.It Fl f
+Indicates that \fB9pfs\fP should not detach from the
+controlling terminal and run in the foreground.
 .It Fl A Ar aname
 The attach name to send to the 9P service.
 .It Fl p Ar port
-Specifies the connection port for the 9P service.
-The default is 564.
+Specifies the connection port for the 9P service. The default
+is 564.
 .It Fl u Ar user
 Specifies the username to use on authentication
 and attach to the 9P service.
-.It Fl d
-Causes debug information for subsequent FUSE library calls to be
-output to stderr.	Implies -f.
-.It Fl f
-This flag indicates that the file system should not detach from the
-controlling terminal and run in the foreground.
-.It Fl o Ar option
-Passes additional option to fuse_mount(3).
+.It Fl o Ar options
+Passes additional options to fuse_mount(3).
 .El
+
 .Pp
 9pfs caches directories it reads which will cause
 inconsistencies if a different 9P client is connected
@@ -66,6 +71,7 @@ is a virtual control file
 in each directory served by 9pfs.
 Reading or writing anything to that file will clear
 the cache for that directory.
+
 .Sh ENVIRONMENT
 .Bl -tag -width FACTOTUM
 .It Ev FACTOTUM
@@ -86,9 +92,10 @@ See the
 .Sx EXAMPLES
 section below for details.
 .El
+
 .Sh EXAMPLES
 The following will mount a remote 9P service
-with authentication, so long as plan9port is
+with authentication, as long as plan9port is
 installed.
 .Pp
 .Dl $ factotum -n
@@ -99,23 +106,28 @@ installed.
 .Dl user[glenda]:
 .Dl password:
 .Dl !
+
 .Pp
 The dom for authentication will need
-to assigned an IP address via /etc/hosts or your
+to have an IP address assigned via /etc/hosts or your
 plan9port $PLAN9/ndb/local file. The utilities
 .Ar factotum
 and
 .Ar namespace
 are from Russ Cox's
-.Lk https://swtch.com/plan9port/ plan9port
+.Lk https://swtch.com/plan9port plan9port
+
 .Sh BUGS
-OpenBSD does not display all the files in a very large
-directory.
-.Pp
 Moving a file to a different directory is not implemented.
 To do so, copy the file and then remove it.
 .Pp
 You cannot access or create a file on the 9P server
-named .fscache in any directory.
+named
+.Ql .fscache
+in any directory.
+.Pp
+OpenBSD does not display all the files in a very large
+directory.
+
 .Sh "SEE ALSO"
 .Lk https://git.sr.ht/~moody/tlsclient tlsclient(1)
