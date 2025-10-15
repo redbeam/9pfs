@@ -582,6 +582,7 @@ main(int argc, char *argv[])
 	if((pw = getpwuid(getuid())) == NULL)
 		errx(1, "Could not get user");
 	strecpy(user, user+sizeof(user), pw->pw_name);
+
 	while((ch = getopt(argc, argv, ":dUVTafA:p:u:o:")) != -1){
 		switch(ch){
 		case 'd':
@@ -774,6 +775,6 @@ breakpath(char *dname)
 void
 usage(void)
 {
-	fprintf(stderr, "Usage: 9pfs [-aUVfd] [-A aname] [-p port] [-u user] [-o option] service mtpt\n");
+	fprintf(stderr, "Usage: 9pfs [-dUVTaf] [-A aname] [-p port] [-u user] [-o fuse_options] service mountpoint\n");
 	exit(2);
 }
