@@ -582,7 +582,7 @@ main(int argc, char *argv[])
 	if((pw = getpwuid(getuid())) == NULL)
 		errx(1, "Could not get user");
 	strecpy(user, user+sizeof(user), pw->pw_name);
-	while((ch = getopt(argc, argv, ":dUVTap:u:A:o:f")) != -1){
+	while((ch = getopt(argc, argv, ":dUVTafA:p:u:o:")) != -1){
 		switch(ch){
 		case 'd':
 			debug++;
@@ -607,14 +607,14 @@ main(int argc, char *argv[])
 		case 'f':
 			*fuseargp++ = "-f";
 			break;
+		case 'A':
+			aname = strdup(optarg);
+			break;
 		case 'p':
 			strecpy(port, port+sizeof(port), optarg);
 			break;
 		case 'u':
 			strecpy(user, user+sizeof(user), optarg);
-			break;
-		case 'A':
-			aname = strdup(optarg);
 			break;
 		case 'o':
 			*fuseargp++ = "-o";
