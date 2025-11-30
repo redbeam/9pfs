@@ -5,7 +5,7 @@ BIN=${DESTDIR}${PREFIX}/bin
 MAN=${DESTDIR}${PREFIX}/share/man/man1
 FUSE_CFLAGS=$$(pkg-config --cflags fuse)
 FUSE_LDFLAGS=$$(pkg-config --libs fuse)
-CFLAGS?=-O2 -pipe -g -Wall
+CFLAGS?=-O2 -pipe -g -Wall -Wstrict-prototypes -Wmissing-prototypes
 CFLAGS+=-D_FILE_OFFSET_BITS=64\
 	-DFUSE_USE_VERSION=26\
 	-D_GNU_SOURCE\

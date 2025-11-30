@@ -3,9 +3,13 @@
 #include <unistd.h>
 #include <err.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+
 #include "../libc.h"
+#include "../9pfs.h"
+#include "../auth.h"
 
 int
 auth_getkey(char *params)

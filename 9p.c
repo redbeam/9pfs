@@ -69,7 +69,7 @@ init9p(void)
 	srandom(seed);
 }
 
-int
+static int
 do9p(Fcall *t, Fcall *r)
 {
 	int	n;
@@ -319,7 +319,7 @@ _9premove(FFid *f)
 	return 0;
 }
 
-long
+static long
 dirpackage(uchar *buf, long ts, Dir **d)
 {
 	char *s;
@@ -547,7 +547,7 @@ fidclone(FFid *f)
 	return newf;
 }
 
-uint
+static uint
 strkey(const char *s)
 {
 	const char	*p;

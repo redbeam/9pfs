@@ -55,7 +55,7 @@ int msize;
 int infd, outfd;
 int debug;
 
-int
+static int
 fsstat(const char *path, struct stat *st)
 {
 	FFid *f;
@@ -73,7 +73,7 @@ fsstat(const char *path, struct stat *st)
 	return 0;
 }
 
-int
+static int
 fsgetattr(const char *path, struct stat *st)
 {
 	Dir *d;
@@ -95,13 +95,13 @@ fsgetattr(const char *path, struct stat *st)
 	return 0;
 }
 
-int
+static int
 fsrelease(const char *path, struct fuse_file_info *ffi)
 {
 	return _9pclunk(FFIH(ffi));
 }
 
-int
+static int
 fsreleasedir(const char *path, struct fuse_file_info *ffi)
 {
 	FFid *f;
@@ -114,7 +114,7 @@ fsreleasedir(const char *path, struct fuse_file_info *ffi)
 	return _9pclunk(f);
 }
 
-int
+static int
 fstruncate(const char *path, off_t off)
 {
 	FFid *f;
@@ -148,7 +148,7 @@ fstruncate(const char *path, off_t off)
 	return 0;
 }
 
-int
+static int
 fsrename(const char *opath, const char *npath)
 {
 	Dir *d;
@@ -186,7 +186,7 @@ fsrename(const char *opath, const char *npath)
 	return 0;
 }
 
-int
+static int
 fsopen(const char *path, struct fuse_file_info *ffi)
 {
 	FFid *f;
@@ -207,7 +207,7 @@ fsopen(const char *path, struct fuse_file_info *ffi)
 	return 0;
 }
 
-int
+static int
 fscreate(const char *path, mode_t perm, struct fuse_file_info *ffi)
 {
 	FFid *f;
@@ -243,7 +243,7 @@ fscreate(const char *path, mode_t perm, struct fuse_file_info *ffi)
 	return 0;
 }
 
-int
+static int
 fsmknod(const char *path, mode_t perm, dev_t dev)
 {
 	FFid *f;
@@ -268,7 +268,7 @@ fsmknod(const char *path, mode_t perm, dev_t dev)
 	return 0;
 }
 
-int
+static int
 fsunlink(const char *path)
 {
 	FFid *f;
@@ -283,7 +283,7 @@ fsunlink(const char *path)
 	return 0;
 }
 
-int
+static int
 fsread(const char *path, char *buf, size_t size, off_t off,
 	struct fuse_file_info *ffi)
 {
@@ -308,7 +308,7 @@ fsread(const char *path, char *buf, size_t size, off_t off,
 	return r;
 }
 
-int
+static int
 fswrite(const char *path, const char *buf, size_t size, off_t off,
 	struct fuse_file_info *ffi)
 {
@@ -329,7 +329,7 @@ fswrite(const char *path, const char *buf, size_t size, off_t off,
 	return r;
 }
 
-int
+static int
 fsopendir(const char *path, struct fuse_file_info *ffi)
 {
 	FFid *f;
@@ -353,7 +353,7 @@ fsopendir(const char *path, struct fuse_file_info *ffi)
 	return 0;
 }
 
-int
+static int
 fsmkdir(const char *path, mode_t perm)
 {
 	FFid *f;
@@ -379,7 +379,7 @@ fsmkdir(const char *path, mode_t perm)
 	return 0;
 }
 
-int
+static int
 fsrmdir(const char *path)
 {
 	FFid *f;
@@ -396,7 +396,7 @@ fsrmdir(const char *path)
 	return 0;
 }
 
-int
+static int
 fsreaddir(const char *path, void *data, fuse_fill_dir_t ffd,
 	off_t off, struct fuse_file_info *ffi)
 {
@@ -423,7 +423,7 @@ fsreaddir(const char *path, void *data, fuse_fill_dir_t ffd,
 	return 0;
 }
 
-int
+static int
 fschmod(const char *path, mode_t perm)
 {
 	FFid *f;
@@ -447,7 +447,7 @@ fschmod(const char *path, mode_t perm)
 	return 0;
 }
 
-struct fuse_operations fsops = {
+static struct fuse_operations fsops = {
 	.getattr =		fsgetattr,
 	.truncate =		fstruncate,
 	.rename =		fsrename,

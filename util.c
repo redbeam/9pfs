@@ -9,6 +9,8 @@
 #include <err.h>
 #include <errno.h>
 
+#include "util.h"
+
 void*
 emalloc(size_t size)
 {
