@@ -61,7 +61,7 @@ init9p(void)
 	unsigned int	seed;
 	int		rfd;
 
-	if((rfd = open("/dev/random", O_RDONLY)) == -1)
+	if((rfd = open("/dev/urandom", O_RDONLY)) == -1)
 		err(1, "Could not open /dev/random");
 	if(read(rfd, &seed, sizeof(seed)) != sizeof(seed))
 		err(1, "Bad /dev/random read");
